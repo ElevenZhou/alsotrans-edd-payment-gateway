@@ -1,6 +1,8 @@
 jQuery(document).ready(function($) {
     // Initialize payment return flag
     window.alsotransReturningFromPayment = false;
+    
+    console.log('Alsotrans EDD JavaScript loaded and initialized');
     if (typeof alsotransEddParams === 'undefined') {
         console.error('alsotransEddParams is undefined - plugin not properly configured');
         return;
@@ -16,7 +18,11 @@ jQuery(document).ready(function($) {
     console.log('Iframe Token:', iframeToken);
     console.log('JS Base URL:', jsBaseUrl);
 
-    // Clear any existing token on page load to prevent reuse
+    // CRITICAL: Always clear any existing token on page load - prevent cross-order token reuse
+    var oldToken = $('input[name="alsotrans_token"]').val();
+    if (oldToken) {
+        console.warn('Found existing token from previous payment attempt, clearing it:', oldToken);
+    }
     $('input[name="alsotrans_token"]').val('');
     console.log('Cleared existing alsotrans_token on page load');
 
@@ -27,6 +33,10 @@ jQuery(document).ready(function($) {
         // Clear any cached payment state
         localStorage.removeItem('alsotrans_payment_in_progress');
         sessionStorage.removeItem('alsotrans_payment_in_progress');
+        
+        // CRITICAL: Make sure token is cleared even on redirect return
+        $('input[name="alsotrans_token"]').val('');
+        console.log('Cleared token again after redirect detection');
 
         // Set a flag to indicate we're returning from payment
         window.alsotransReturningFromPayment = true;
@@ -136,7 +146,9 @@ jQuery(document).ready(function($) {
 
         // If token exists but we are not in redirect flow, consider it stale and regenerate
         if (existingToken && !alsotransSubmitRedirect) {
-            console.log('Detected stale alsotrans_token from previous action, clearing it to avoid duplicate submission');
+            console.warn('CRITICAL: Detected stale alsotrans_token from previous order/attempt, clearing it to prevent duplicate submission');
+            console.log('Token being cleared:', existingToken);
+            console.log('This prevents token reuse across different payment attempts (e.g., failed order then new order)');
             $('input[name="alsotrans_token"]').val('');
             existingToken = '';
         }
