@@ -133,8 +133,16 @@ jQuery(document).ready(function($) {
         }
 
         var existingToken = $('input[name="alsotrans_token"]').val();
-        if (existingToken) {
-            console.log('Alsotrans token already exists:', existingToken, 'Proceeding to submit.');
+
+        // If token exists but we are not in redirect flow, consider it stale and regenerate
+        if (existingToken && !alsotransSubmitRedirect) {
+            console.log('Detected stale alsotrans_token from previous action, clearing it to avoid duplicate submission');
+            $('input[name="alsotrans_token"]').val('');
+            existingToken = '';
+        }
+
+        if (existingToken && alsotransSubmitRedirect) {
+            console.log('Alsotrans token already exists and we are in redirect submit flow:', existingToken, 'Proceeding to submit.');
             return true;
         }
 
