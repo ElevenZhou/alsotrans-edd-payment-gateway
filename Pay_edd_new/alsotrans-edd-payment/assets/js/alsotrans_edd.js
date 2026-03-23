@@ -1,5 +1,6 @@
 jQuery(document).ready(function($) {
-    console.log('Alsotrans EDD JavaScript loaded and initialized');
+    // Initialize payment return flag
+    window.alsotransReturningFromPayment = false;
     if (typeof alsotransEddParams === 'undefined') {
         console.error('alsotransEddParams is undefined - plugin not properly configured');
         return;
@@ -18,6 +19,23 @@ jQuery(document).ready(function($) {
     // Clear any existing token on page load to prevent reuse
     $('input[name="alsotrans_token"]').val('');
     console.log('Cleared existing alsotrans_token on page load');
+
+    // Check if we're returning from a payment redirect
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('edd-listener') && urlParams.get('edd-listener') === 'alsotrans_ipn') {
+        console.log('Detected return from Alsotrans payment redirect, clearing any cached state');
+        // Clear any cached payment state
+        localStorage.removeItem('alsotrans_payment_in_progress');
+        sessionStorage.removeItem('alsotrans_payment_in_progress');
+
+        // Set a flag to indicate we're returning from payment
+        window.alsotransReturningFromPayment = true;
+
+        // Show a message to the user
+        setTimeout(function() {
+            eddGatewayAlert('info', 'Payment processing completed. Please check your order status or try again if needed.');
+        }, 1000);
+    }
 
     // Check form elements
     console.log('Checking form elements...');
@@ -104,6 +122,14 @@ jQuery(document).ready(function($) {
     function submitAlsotransOnce(e) {
         if (!isAlsotransGateway()) {
             return true;
+        }
+
+        // Check if we're returning from a payment redirect - prevent new payment attempts
+        if (window.alsotransReturningFromPayment) {
+            console.log('Returning from payment redirect, preventing new payment attempt');
+            e.preventDefault();
+            eddGatewayAlert('warning', 'Please wait for your previous payment to complete or refresh the page to start a new payment.');
+            return false;
         }
 
         var existingToken = $('input[name="alsotrans_token"]').val();

@@ -353,10 +353,20 @@ class Alsotrans_EDD_Gateway {
             if (!empty($order_id)) {
                 $payment = edd_get_payment($order_id);
                 if ($payment) {
-                    if ($status === 'paid' || $status === 'complete') {
+                    // Check if payment is already completed or processing
+                    if ($payment->status === 'complete' || $payment->status === 'publish') {
+                        // Payment already completed, redirect to success page
+                        edd_send_to_success_page(array('purchase_id' => $order_id));
+                    } elseif ($payment->status === 'failed') {
+                        // Payment failed, redirect back to checkout with error
+                        edd_set_error('alsotrans_payment_error', __('Payment failed. Please try again or contact support.', 'alsotrans-edd'));
+                        edd_send_back_to_checkout();
+                    } elseif ($status === 'paid' || $status === 'complete') {
+                        // Update status and redirect to success
+                        edd_update_payment_status($order_id, 'complete');
                         edd_send_to_success_page(array('purchase_id' => $order_id));
                     } else {
-                        // Payment failed - redirect back to checkout with error
+                        // Payment failed or pending, redirect back to checkout
                         edd_set_error('alsotrans_payment_error', __('Payment failed. Please try again or contact support.', 'alsotrans-edd'));
                         edd_send_back_to_checkout();
                     }
