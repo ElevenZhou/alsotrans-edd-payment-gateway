@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'name' => 'easydigitaldownloads/edd-authorize-net',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => 'bb52f925c2d18799a334ee17090925756018b0e2',
+        'type' => 'library',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => true,
+    ),
+    'versions' => array(
+        'authorizenet/authorizenet' => array(
+            'pretty_version' => '2.0.4',
+            'version' => '2.0.4.0',
+            'reference' => '8555cc245953dd0ac57f7ea424a5572eae4c7191',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../authorizenet/authorizenet',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'easydigitaldownloads/edd-addon-tools' => array(
+            'pretty_version' => '1.1.0',
+            'version' => '1.1.0.0',
+            'reference' => 'd98f2da88f129c53ba8dd0717bf1d58821695c25',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../easydigitaldownloads/edd-addon-tools',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'easydigitaldownloads/edd-authorize-net' => array(
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => 'bb52f925c2d18799a334ee17090925756018b0e2',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+    ),
+);

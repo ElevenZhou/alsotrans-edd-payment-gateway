@@ -1,0 +1,39 @@
+msgid "Enable/Disable"
+msgstr "Enable/Disable"
+
+msgid "Enable Payment Gateway, it will be visible on checkout page."
+msgstr "Enable Payment Gateway, it will be visible on checkout page."
+
+msgid "Title"
+msgstr "Title"
+
+msgid "The title will be shown to the user during checkout page."
+msgstr "The title will be shown to the user during checkout page."
+
+msgid "Merchant ID"
+msgstr "Merchant ID"
+
+msgid "Md5 Key"
+msgstr "Md5 Key"
+
+msgid "Api Key"
+msgstr "Api Key"
+
+msgid "Public Key"
+msgstr "Public Key"
+
+msgid "Private Key"
+msgstr "Private Key"
+
+msgid "Accepted Cards"
+msgstr "Accepted Cards"
+
+msgid "Select the card types to accept."
+msgstr "Select the card types to accept."
+
+msgid "Callback url"
+msgstr "Callback url"
+
+msgid "Description"
+msgstr "Description"
+

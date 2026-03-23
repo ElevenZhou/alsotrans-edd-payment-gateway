@@ -1,0 +1,141 @@
+# Copyright (C) 2024 Alsotrans
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Alsotrans EDD Payment Gateway 1.0.0\n"
+"Report-Msgid-Bugs-To: https://www.alsotransglobal.com/\n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: Alsotrans\n"
+"Language-Team: Alsotrans\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Enable/Disable"
+msgstr "启用/禁用"
+
+msgid "Enable Alsotrans payment gateway"
+msgstr "启用Alsotrans支付网关"
+
+msgid "Title"
+msgstr "标题"
+
+msgid "The payment method title users see during checkout."
+msgstr "用户在结账时看到的支付方式标题。"
+
+msgid "Credit Card"
+msgstr "信用卡"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "The payment method description users see during checkout."
+msgstr "用户在结账时看到的支付方式描述。"
+
+msgid "Merchant ID"
+msgstr "商户号"
+
+msgid "Your Alsotrans Merchant ID."
+msgstr "您的Alsotrans商户号。"
+
+msgid "Private Key"
+msgstr "私钥"
+
+msgid "Your Alsotrans Private Key for API authentication."
+msgstr "您的Alsotrans API认证私钥。"
+
+msgid "MD5 Key"
+msgstr "MD5密钥"
+
+msgid "Your Alsotrans MD5 Key for callback verification."
+msgstr "您的Alsotrans回调验证MD5密钥。"
+
+msgid "Environment"
+msgstr "环境"
+
+msgid "Select sandbox for testing, live for production."
+msgstr "选择沙箱用于测试，生产环境选择正式环境。"
+
+msgid "Live"
+msgstr "正式环境"
+
+msgid "Sandbox"
+msgstr "沙箱环境"
+
+msgid "Accepted Cards"
+msgstr "支持的信用卡"
+
+msgid "Select the card types to accept."
+msgstr "选择您接受的信用卡类型。"
+
+msgid "Visa"
+msgstr "Visa卡"
+
+msgid "MasterCard"
+msgstr "万事达卡"
+
+msgid "JCB"
+msgstr "JCB卡"
+
+msgid "American Express"
+msgstr "美国运通"
+
+msgid "Diners Club"
+msgstr "大来卡"
+
+msgid "Discover"
+msgstr "Discover卡"
+
+msgid "Alsotrans Payment Gateway Settings"
+msgstr "Alsotrans支付网关设置"
+
+msgid "Configure your Alsotrans payment gateway credentials and options."
+msgstr "配置您的Alsotrans支付网关凭证和选项。"
+
+msgid "Alsotrans"
+msgstr "Alsotrans"
+
+msgid "Alsotrans Payment Gateway"
+msgstr "Alsotrans支付网关"
+
+msgid "Credit Card (Alsotrans)"
+msgstr "信用卡 (Alsotrans)"
+
+msgid "Pay securely with your credit card via Alsotrans."
+msgstr "通过Alsotrans安全地使用信用卡支付。"
+
+msgid "Security verification failed"
+msgstr "安全验证失败"
+
+msgid "Failed to create payment record"
+msgstr "创建支付记录失败"
+
+msgid "Payment failed"
+msgstr "支付失败"
+
+msgid "Alsotrans Payment Error"
+msgstr "Alsotrans支付错误"
+
+msgid "Alsotrans payment completed. Transaction ID: %s"
+msgstr "Alsotrans支付完成。交易号：%s"
+
+msgid "Alsotrans payment pending. Redirect URL: %s"
+msgstr "Alsotrans支付待处理。重定向URL：%s"
+
+msgid "Alsotrans payment failed: %s"
+msgstr "Alsotrans支付失败：%s"
+
+msgid "Alsotrans IPN callback received. Status: %s"
+msgstr "收到Alsotrans IPN回调。状态：%s"
+
+msgid "Payment creation failed before loading Alsotrans"
+msgstr "在加载Alsotrans之前创建支付失败"
+
+msgid "Invalid transaction"
+msgstr "无效交易"
+
+msgid "Alsotrans Payment Gateway requires Easy Digital Downloads to be installed and active."
+msgstr "Alsotrans支付网关需要安装并激活Easy Digital Downloads。"

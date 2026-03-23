@@ -1,0 +1,141 @@
+# Copyright (C) 2024 Alsotrans
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Alsotrans EDD Payment Gateway 1.0.0\n"
+"Report-Msgid-Bugs-To: https://www.alsotransglobal.com/\n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: Alsotrans\n"
+"Language-Team: Alsotrans\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Enable/Disable"
+msgstr "Enable/Disable"
+
+msgid "Enable Alsotrans payment gateway"
+msgstr "Enable Alsotrans payment gateway"
+
+msgid "Title"
+msgstr "Title"
+
+msgid "The payment method title users see during checkout."
+msgstr "The payment method title users see during checkout."
+
+msgid "Credit Card"
+msgstr "Credit Card"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "The payment method description users see during checkout."
+msgstr "The payment method description users see during checkout."
+
+msgid "Merchant ID"
+msgstr "Merchant ID"
+
+msgid "Your Alsotrans Merchant ID."
+msgstr "Your Alsotrans Merchant ID."
+
+msgid "Private Key"
+msgstr "Private Key"
+
+msgid "Your Alsotrans Private Key for API authentication."
+msgstr "Your Alsotrans Private Key for API authentication."
+
+msgid "MD5 Key"
+msgstr "MD5 Key"
+
+msgid "Your Alsotrans MD5 Key for callback verification."
+msgstr "Your Alsotrans MD5 Key for callback verification."
+
+msgid "Environment"
+msgstr "Environment"
+
+msgid "Select sandbox for testing, live for production."
+msgstr "Select sandbox for testing, live for production."
+
+msgid "Live"
+msgstr "Live"
+
+msgid "Sandbox"
+msgstr "Sandbox"
+
+msgid "Accepted Cards"
+msgstr "Accepted Cards"
+
+msgid "Select the card types to accept."
+msgstr "Select the card types to accept."
+
+msgid "Visa"
+msgstr "Visa"
+
+msgid "MasterCard"
+msgstr "MasterCard"
+
+msgid "JCB"
+msgstr "JCB"
+
+msgid "American Express"
+msgstr "American Express"
+
+msgid "Diners Club"
+msgstr "Diners Club"
+
+msgid "Discover"
+msgstr "Discover"
+
+msgid "Alsotrans Payment Gateway Settings"
+msgstr "Alsotrans Payment Gateway Settings"
+
+msgid "Configure your Alsotrans payment gateway credentials and options."
+msgstr "Configure your Alsotrans payment gateway credentials and options."
+
+msgid "Alsotrans"
+msgstr "Alsotrans"
+
+msgid "Alsotrans Payment Gateway"
+msgstr "Alsotrans Payment Gateway"
+
+msgid "Credit Card (Alsotrans)"
+msgstr "Credit Card (Alsotrans)"
+
+msgid "Pay securely with your credit card via Alsotrans."
+msgstr "Pay securely with your credit card via Alsotrans."
+
+msgid "Security verification failed"
+msgstr "Security verification failed"
+
+msgid "Failed to create payment record"
+msgstr "Failed to create payment record"
+
+msgid "Payment failed"
+msgstr "Payment failed"
+
+msgid "Alsotrans Payment Error"
+msgstr "Alsotrans Payment Error"
+
+msgid "Alsotrans payment completed. Transaction ID: %s"
+msgstr "Alsotrans payment completed. Transaction ID: %s"
+
+msgid "Alsotrans payment pending. Redirect URL: %s"
+msgstr "Alsotrans payment pending. Redirect URL: %s"
+
+msgid "Alsotrans payment failed: %s"
+msgstr "Alsotrans payment failed: %s"
+
+msgid "Alsotrans IPN callback received. Status: %s"
+msgstr "Alsotrans IPN callback received. Status: %s"
+
+msgid "Payment creation failed before loading Alsotrans"
+msgstr "Payment creation failed before loading Alsotrans"
+
+msgid "Invalid transaction"
+msgstr "Invalid transaction"
+
+msgid "Alsotrans Payment Gateway requires Easy Digital Downloads to be installed and active."
+msgstr "Alsotrans Payment Gateway requires Easy Digital Downloads to be installed and active."
