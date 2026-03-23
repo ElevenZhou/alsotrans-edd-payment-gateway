@@ -349,6 +349,14 @@ class Alsotrans_EDD_Gateway {
         if ($is_user_redirect) {
             $status = isset($_GET['status']) ? $_GET['status'] : 'failed';
             $order_id = isset($_GET['order_id']) ? $_GET['order_id'] : '';
+            $fail_message = isset($_GET['fail_message']) ? sanitize_text_field($_GET['fail_message']) : '';
+            $fail_code = isset($_GET['fail_code']) ? sanitize_text_field($_GET['fail_code']) : '';
+
+            error_log('=== ALSOTRANS USER REDIRECT ===');
+            error_log('Order ID: ' . $order_id);
+            error_log('Status: ' . $status);
+            error_log('Fail Code: ' . $fail_code);
+            error_log('Fail Message: ' . $fail_message);
 
             if (!empty($order_id)) {
                 $payment = edd_get_payment($order_id);
@@ -356,25 +364,51 @@ class Alsotrans_EDD_Gateway {
                     // Check if payment is already completed or processing
                     if ($payment->status === 'complete' || $payment->status === 'publish') {
                         // Payment already completed, redirect to success page
+                        error_log('Payment already complete, redirecting to success page');
                         edd_send_to_success_page(array('purchase_id' => $order_id));
-                    } elseif ($payment->status === 'failed') {
-                        // Payment failed, redirect back to checkout with error
-                        edd_set_error('alsotrans_payment_error', __('Payment failed. Please try again or contact support.', 'alsotrans-edd'));
-                        edd_send_back_to_checkout();
                     } elseif ($status === 'paid' || $status === 'complete') {
                         // Update status and redirect to success
+                        error_log('Payment status is "paid", updating and redirecting to success');
                         edd_update_payment_status($order_id, 'complete');
+                        edd_insert_payment_note($order_id, __('Alsotrans payment redirect: Payment completed.', 'alsotrans-edd'));
                         edd_send_to_success_page(array('purchase_id' => $order_id));
                     } else {
-                        // Payment failed or pending, redirect back to checkout
-                        edd_set_error('alsotrans_payment_error', __('Payment failed. Please try again or contact support.', 'alsotrans-edd'));
+                        // Payment failed - redirect to EDD Failed Transaction Page
+                        error_log('Payment failed, redirecting to failed transaction page');
+                        edd_update_payment_status($order_id, 'failed');
+                        
+                        $error_note = __('Alsotrans payment failed', 'alsotrans-edd');
+                        if ($fail_code) {
+                            $error_note .= ' [Code: ' . $fail_code . ']';
+                        }
+                        if ($fail_message) {
+                            $error_note .= ' - ' . $fail_message;
+                        }
+                        edd_insert_payment_note($order_id, $error_note);
+                        
+                        // Get EDD's configured failed transaction page
+                        $failure_page_id = edd_get_option('failure_page');
+                        if (!empty($failure_page_id)) {
+                            $failure_page_url = get_permalink($failure_page_id);
+                            if ($failure_page_url) {
+                                error_log('Redirecting to configured failure page: ' . $failure_page_url);
+                                wp_redirect($failure_page_url);
+                                exit;
+                            }
+                        }
+                        
+                        // Fallback: set error and send back to checkout
+                        error_log('No configured failure page, falling back to checkout');
+                        edd_set_error('alsotrans_payment_error', __('Payment failed', 'alsotrans-edd') . ($fail_code ? ' (' . $fail_code . ')' : ''));
                         edd_send_back_to_checkout();
                     }
                 } else {
+                    error_log('Payment record not found for order: ' . $order_id);
                     edd_set_error('alsotrans_payment_error', __('Payment not found.', 'alsotrans-edd'));
                     edd_send_back_to_checkout();
                 }
             } else {
+                error_log('Invalid payment reference - order_id is empty');
                 edd_set_error('alsotrans_payment_error', __('Invalid payment reference.', 'alsotrans-edd'));
                 edd_send_back_to_checkout();
             }
