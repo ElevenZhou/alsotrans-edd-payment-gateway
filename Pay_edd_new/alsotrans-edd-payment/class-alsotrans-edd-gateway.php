@@ -303,36 +303,71 @@ class Alsotrans_EDD_Gateway {
             $request_data = $_POST;
         }
 
-        try {
-            $callback = new CallbackData($request_data);
-            $this->verify_callback_sign($callback);
+        // Check if this is a user redirect (GET request) vs server callback (POST)
+        $is_user_redirect = empty($request_data) && !empty($_GET);
 
-            $payment_id = $callback->order_id;
-            if (strpos($payment_id, '_') !== false) {
-                $order_arr = explode('_', $payment_id);
-                $payment_id = $order_arr[0];
+        if ($is_user_redirect) {
+            // Handle user redirect from Alsotrans
+            $callback_data = $_GET;
+        } else {
+            // Handle server callback
+            try {
+                $callback = new CallbackData($request_data);
+                $this->verify_callback_sign($callback);
+
+                $payment_id = $callback->order_id;
+                if (strpos($payment_id, '_') !== false) {
+                    $order_arr = explode('_', $payment_id);
+                    $payment_id = $order_arr[0];
+                }
+
+                $payment = edd_get_payment($payment_id);
+                if (!$payment) {
+                    throw new Exception('Payment not found: ' . $payment_id);
+                }
+
+                $status = $this->map_gateway_status_to_edd($callback->status);
+                edd_update_payment_status($payment_id, $status);
+
+                if (!empty($callback->id)) {
+                    edd_update_payment_meta($payment_id, '_alsotrans_ipn_transaction_id', $callback->id);
+                }
+
+                edd_insert_payment_note($payment_id, sprintf(__('Alsotrans IPN callback received. Status: %s', 'alsotrans-edd'), $callback->status));
+
+                echo '[success]';
+                exit;
+
+            } catch (Exception $e) {
+                $this->record_log('IPN Error', $e->getMessage());
+                echo 'Error: ' . $e->getMessage();
+                exit;
             }
+        }
 
-            $payment = edd_get_payment($payment_id);
-            if (!$payment) {
-                throw new Exception('Payment not found: ' . $payment_id);
+        // Handle user redirect
+        if ($is_user_redirect) {
+            $status = isset($_GET['status']) ? $_GET['status'] : 'failed';
+            $order_id = isset($_GET['order_id']) ? $_GET['order_id'] : '';
+
+            if (!empty($order_id)) {
+                $payment = edd_get_payment($order_id);
+                if ($payment) {
+                    if ($status === 'paid' || $status === 'complete') {
+                        edd_send_to_success_page(array('purchase_id' => $order_id));
+                    } else {
+                        // Payment failed - redirect back to checkout with error
+                        edd_set_error('alsotrans_payment_error', __('Payment failed. Please try again or contact support.', 'alsotrans-edd'));
+                        edd_send_back_to_checkout();
+                    }
+                } else {
+                    edd_set_error('alsotrans_payment_error', __('Payment not found.', 'alsotrans-edd'));
+                    edd_send_back_to_checkout();
+                }
+            } else {
+                edd_set_error('alsotrans_payment_error', __('Invalid payment reference.', 'alsotrans-edd'));
+                edd_send_back_to_checkout();
             }
-
-            $status = $this->map_gateway_status_to_edd($callback->status);
-            edd_update_payment_status($payment_id, $status);
-
-            if (!empty($callback->id)) {
-                edd_update_payment_meta($payment_id, '_alsotrans_ipn_transaction_id', $callback->id);
-            }
-
-            edd_insert_payment_note($payment_id, sprintf(__('Alsotrans IPN callback received. Status: %s', 'alsotrans-edd'), $callback->status));
-
-            echo '[success]';
-            exit;
-
-        } catch (Exception $e) {
-            $this->record_log('IPN Error', $e->getMessage());
-            echo 'Error: ' . $e->getMessage();
             exit;
         }
     }
