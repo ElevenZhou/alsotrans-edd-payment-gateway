@@ -21,9 +21,19 @@ class HttpHelper {
         }
 
         $debug_log = "=== HTTP POST REQUEST ===\nURL: $url\nHEADERS: " . json_encode($header) . "\nBODY: $data\n";
-        $upload_dir = function_exists('wp_upload_dir') ? wp_upload_dir() : false;
-        $log_file = $upload_dir ? rtrim($upload_dir['basedir'], '\\/') . '/alsotrans_debug.log' : sys_get_temp_dir() . '/alsotrans_debug.log';
-        file_put_contents($log_file, date('Y-m-d H:i:s') . " $debug_log", FILE_APPEND);
+        // Write detailed request log to uploads/alsotrans-edd-logs for debugging (cross-platform)
+        if (function_exists('wp_upload_dir')) {
+            $upload_dir = wp_upload_dir();
+            $log_dir = $upload_dir['basedir'] . '/alsotrans-edd-logs';
+            if (!file_exists($log_dir)) {
+                wp_mkdir_p($log_dir);
+            }
+            $log_file = $log_dir . '/' . date('Y-m') . '.log';
+            file_put_contents($log_file, date('Y-m-d H:i:s') . " " . $debug_log, FILE_APPEND);
+        } else {
+            // Fallback for non-WP contexts
+            @file_put_contents(sys_get_temp_dir() . '/alsotrans_debug.log', date('Y-m-d H:i:s') . " " . $debug_log, FILE_APPEND);
+        }
 
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -43,9 +53,19 @@ class HttpHelper {
         }
         
         $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        error_log('=== HTTP POST RESPONSE ===');
-        error_log('HTTP Code: ' . $http_code);
-        error_log('Response: ' . $result);
+        // Log response to the same upload log for correlation
+        $response_log = "=== HTTP POST RESPONSE ===\nHTTP Code: $http_code\nResponse: $result\n";
+        if (function_exists('wp_upload_dir')) {
+            $upload_dir = wp_upload_dir();
+            $log_dir = $upload_dir['basedir'] . '/alsotrans-edd-logs';
+            if (!file_exists($log_dir)) {
+                wp_mkdir_p($log_dir);
+            }
+            $log_file = $log_dir . '/' . date('Y-m') . '.log';
+            file_put_contents($log_file, date('Y-m-d H:i:s') . " " . $response_log, FILE_APPEND);
+        } else {
+            @file_put_contents(sys_get_temp_dir() . '/alsotrans_debug.log', date('Y-m-d H:i:s') . " " . $response_log, FILE_APPEND);
+        }
         
         curl_close($curl);
         return $result;
@@ -57,6 +77,19 @@ class HttpHelper {
         error_log('=== HTTP GET REQUEST ===');
         error_log('URL: ' . $url);
         error_log('HEADERS: ' . json_encode($header));
+        // Also write GET request to uploads log
+        $debug_log_get = "=== HTTP GET REQUEST ===\nURL: $url\nHEADERS: " . json_encode($header) . "\n";
+        if (function_exists('wp_upload_dir')) {
+            $upload_dir = wp_upload_dir();
+            $log_dir = $upload_dir['basedir'] . '/alsotrans-edd-logs';
+            if (!file_exists($log_dir)) {
+                wp_mkdir_p($log_dir);
+            }
+            $log_file = $log_dir . '/' . date('Y-m') . '.log';
+            file_put_contents($log_file, date('Y-m-d H:i:s') . " " . $debug_log_get, FILE_APPEND);
+        } else {
+            @file_put_contents(sys_get_temp_dir() . '/alsotrans_debug.log', date('Y-m-d H:i:s') . " " . $debug_log_get, FILE_APPEND);
+        }
 
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -73,9 +106,18 @@ class HttpHelper {
         }
         
         $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        error_log('=== HTTP GET RESPONSE ===');
-        error_log('HTTP Code: ' . $http_code);
-        error_log('Response: ' . $result);
+        $response_log_get = "=== HTTP GET RESPONSE ===\nHTTP Code: $http_code\nResponse: $result\n";
+        if (function_exists('wp_upload_dir')) {
+            $upload_dir = wp_upload_dir();
+            $log_dir = $upload_dir['basedir'] . '/alsotrans-edd-logs';
+            if (!file_exists($log_dir)) {
+                wp_mkdir_p($log_dir);
+            }
+            $log_file = $log_dir . '/' . date('Y-m') . '.log';
+            file_put_contents($log_file, date('Y-m-d H:i:s') . " " . $response_log_get, FILE_APPEND);
+        } else {
+            @file_put_contents(sys_get_temp_dir() . '/alsotrans_debug.log', date('Y-m-d H:i:s') . " " . $response_log_get, FILE_APPEND);
+        }
         
         curl_close($curl);
         return $result;

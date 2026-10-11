@@ -194,11 +194,16 @@ class Alsotrans_EDD_Gateway {
 
         $callback_url = home_url('/?edd-listener=alsotrans_ipn');
 
+        // Use a high-entropy merchant_reference per API attempt to avoid upstream repeat-order rejection
+        $merchant_reference = (string) $payment_id . '_' . round(microtime(true) * 1000) . '_' . wp_rand(1000, 9999);
+
+        error_log('Using merchant_reference for request: ' . $merchant_reference);
+
         return array(
             'model' => 'EMBED',
             'amount' => $purchase_data['price'],
             'currency' => $currency,
-            'merchant_reference' => (string) $payment_id,
+            'merchant_reference' => $merchant_reference,
             'customer_email' => $purchase_data['user_email'],
             'payment_method' => 'card',
             'payment_information' => array(
@@ -348,34 +353,40 @@ class Alsotrans_EDD_Gateway {
         // Handle user redirect
         if ($is_user_redirect) {
             $status = isset($_GET['status']) ? $_GET['status'] : 'failed';
-            $order_id = isset($_GET['order_id']) ? $_GET['order_id'] : '';
+            $order_id = isset($_GET['order_id']) ? sanitize_text_field($_GET['order_id']) : '';
+            $payment_id = $order_id;
+            if (!empty($payment_id) && strpos($payment_id, '_') !== false) {
+                $order_arr = explode('_', $payment_id);
+                $payment_id = $order_arr[0];
+            }
             $fail_message = isset($_GET['fail_message']) ? sanitize_text_field($_GET['fail_message']) : '';
             $fail_code = isset($_GET['fail_code']) ? sanitize_text_field($_GET['fail_code']) : '';
 
             error_log('=== ALSOTRANS USER REDIRECT ===');
             error_log('Order ID: ' . $order_id);
+            error_log('Parsed Payment ID: ' . $payment_id);
             error_log('Status: ' . $status);
             error_log('Fail Code: ' . $fail_code);
             error_log('Fail Message: ' . $fail_message);
 
-            if (!empty($order_id)) {
-                $payment = edd_get_payment($order_id);
+            if (!empty($payment_id)) {
+                $payment = edd_get_payment($payment_id);
                 if ($payment) {
                     // Check if payment is already completed or processing
                     if ($payment->status === 'complete' || $payment->status === 'publish') {
                         // Payment already completed, redirect to success page
                         error_log('Payment already complete, redirecting to success page');
-                        edd_send_to_success_page(array('purchase_id' => $order_id));
+                        $this->redirect_to_success_page();
                     } elseif ($status === 'paid' || $status === 'complete') {
                         // Update status and redirect to success
                         error_log('Payment status is "paid", updating and redirecting to success');
-                        edd_update_payment_status($order_id, 'complete');
-                        edd_insert_payment_note($order_id, __('Alsotrans payment redirect: Payment completed.', 'alsotrans-edd'));
-                        edd_send_to_success_page(array('purchase_id' => $order_id));
+                        edd_update_payment_status($payment_id, 'complete');
+                        edd_insert_payment_note($payment_id, __('Alsotrans payment redirect: Payment completed.', 'alsotrans-edd'));
+                        $this->redirect_to_success_page();
                     } else {
                         // Payment failed - redirect to EDD Failed Transaction Page
                         error_log('Payment failed, redirecting to failed transaction page');
-                        edd_update_payment_status($order_id, 'failed');
+                        edd_update_payment_status($payment_id, 'failed');
                         
                         $error_note = __('Alsotrans payment failed', 'alsotrans-edd');
                         if ($fail_code) {
@@ -384,7 +395,7 @@ class Alsotrans_EDD_Gateway {
                         if ($fail_message) {
                             $error_note .= ' - ' . $fail_message;
                         }
-                        edd_insert_payment_note($order_id, $error_note);
+                        edd_insert_payment_note($payment_id, $error_note);
                         
                         // Get EDD's configured failed transaction page
                         $failure_page_id = edd_get_option('failure_page');
@@ -403,7 +414,7 @@ class Alsotrans_EDD_Gateway {
                         edd_send_back_to_checkout();
                     }
                 } else {
-                    error_log('Payment record not found for order: ' . $order_id);
+                    error_log('Payment record not found for payment_id: ' . $payment_id . ', raw order_id: ' . $order_id);
                     edd_set_error('alsotrans_payment_error', __('Payment not found.', 'alsotrans-edd'));
                     edd_send_back_to_checkout();
                 }
@@ -414,6 +425,23 @@ class Alsotrans_EDD_Gateway {
             }
             exit;
         }
+    }
+
+    private function redirect_to_success_page() {
+        // Prefer EDD configured success page URL without query parameters.
+        $success_page_id = edd_get_option('success_page');
+        if (!empty($success_page_id)) {
+            $success_page_url = get_permalink($success_page_id);
+            if ($success_page_url) {
+                error_log('Redirecting to configured success page: ' . $success_page_url);
+                wp_redirect($success_page_url);
+                exit;
+            }
+        }
+
+        // Fallback to EDD default behavior.
+        edd_send_to_success_page();
+        exit;
     }
 
     private function verify_callback_sign($callback_data) {
@@ -520,13 +548,29 @@ function alsotrans_edd_process_payment($purchase_data) {
         $gateway_result = $result['result'];
 
         if ($gateway_result->status === 'paid') {
-            edd_send_to_success_page(array('purchase_id' => $payment_id));
+            $success_page_id = edd_get_option('success_page');
+            if (!empty($success_page_id)) {
+                $success_page_url = get_permalink($success_page_id);
+                if ($success_page_url) {
+                    wp_redirect($success_page_url);
+                    exit;
+                }
+            }
+            edd_send_to_success_page();
         } elseif ($gateway_result->status === 'pending' || $gateway_result->status === 'unpaid') {
             if (!empty($gateway_result->redirect_url)) {
                 wp_redirect($gateway_result->redirect_url);
                 exit;
             }
-            edd_send_to_success_page(array('purchase_id' => $payment_id));
+            $success_page_id = edd_get_option('success_page');
+            if (!empty($success_page_id)) {
+                $success_page_url = get_permalink($success_page_id);
+                if ($success_page_url) {
+                    wp_redirect($success_page_url);
+                    exit;
+                }
+            }
+            edd_send_to_success_page();
         } else {
             edd_set_error('alsotrans_payment_error', $gateway_result->getFormattedErrorMessage() ?: __('Payment failed', 'alsotrans-edd'));
             edd_send_back_to_checkout();
